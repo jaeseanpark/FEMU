@@ -234,8 +234,10 @@ static void check_params(struct ssdparams *spp)
     //ftl_assert(is_power_of_2(spp->nchs));
 }
 
-static void ssd_init_params(struct ssdparams *spp)
+//ANCHOR - ssd_init_params added parameter struct ssd *ssd;
+static void ssd_init_params(struct ssdparams *spp, struct ssd *ssd)
 {
+    
     spp->secsz = 512;
     spp->secs_per_pg = 8;
     spp->pgs_per_blk = 256;
@@ -244,6 +246,7 @@ static void ssd_init_params(struct ssdparams *spp)
     spp->luns_per_ch = 8;
     spp->nchs = 8;
 
+    //ANCHOR: nand latency
     spp->pg_rd_lat = NAND_READ_LATENCY;
     spp->pg_wr_lat = NAND_PROG_LATENCY;
     spp->blk_er_lat = NAND_ERASE_LATENCY;
@@ -360,14 +363,44 @@ static void ssd_init_rmap(struct ssd *ssd)
     }
 }
 
+//ANCHOR - ssd_init
 void ssd_init(FemuCtrl *n)
 {
     struct ssd *ssd = n->ssd;
     struct ssdparams *spp = &ssd->sp;
 
     ftl_assert(ssd);
+    //ANCHOR - write to file 
+    int fd, size;
+    char mystring[512];
+    if((size = snprintf(mystring, 512, "device name: %s\n", n->devname)) < 0){
+        perror("snprintf error\n");
+        exit(0);
+    }
+    if((fd = open("femu_log.txt", O_CREAT|O_APPEND|O_RDWR, 777)) < 0){
+        perror("file open error\n");
+        close(fd);
+        exit(0);
+    }
+    /////////////////////////////////////////
+    if(!strncmp("vSSD1", n->ssd->ssdname, 6)){
+        if(write(fd, "1111111\n", 10) < 0){
+            perror("write error\n");
+            close(fd);
+            exit(0);
+        }
+    }
+    else if(!strncmp("vSSD0", n->ssd->ssdname, 6)){
+        if(write(fd, "0000000\n", 10) < 0){
+            perror("write error\n");
+            close(fd);
+            exit(0);
+        }
+    }
+    /////////////////////////////////////////
+    close(fd);
 
-    ssd_init_params(spp);
+    ssd_init_params(spp, n->ssd);
 
     /* initialize ssd internal layout architecture */
     ssd->ch = g_malloc0(sizeof(struct ssd_channel) * spp->nchs);
