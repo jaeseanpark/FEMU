@@ -246,11 +246,53 @@ static void ssd_init_params(struct ssdparams *spp, struct ssd *ssd)
     spp->luns_per_ch = 8;
     spp->nchs = 8;
 
+    //////////////////////////////////////////////
+    //////////////////////////////////////////////
     //ANCHOR: nand latency
-    spp->pg_rd_lat = NAND_READ_LATENCY;
-    spp->pg_wr_lat = NAND_PROG_LATENCY;
-    spp->blk_er_lat = NAND_ERASE_LATENCY;
-    spp->ch_xfer_lat = 0;
+    // int fd, size;
+    // char mystring[32];
+    // if((fd = open("femu_log.txt", O_CREAT|O_APPEND|O_RDWR, 777)) < 0){
+    //     perror("file open error\n");
+    //     close(fd);
+    //     exit(0);
+    // }
+    if(!strncmp("vSSD0", ssd->ssdname, 6)){
+        // if((size = snprintf(mystring, 32, "from SSD0: %s\n", ssd->ssdname)) < 0){
+        //     perror("snprintf error\n");
+        //     exit(0);
+        // }
+        spp->pg_rd_lat = MLC_NAND_READ_LATENCY;
+        spp->pg_wr_lat = MLC_NAND_PROG_LATENCY;
+        spp->blk_er_lat = MLC_NAND_ERASE_LATENCY;
+        spp->ch_xfer_lat = 0;
+    }
+    else if (!strncmp("vSSD1", ssd->ssdname, 6)){
+        // if((size = snprintf(mystring, 32, "from SSD1: %s\n", ssd->ssdname)) < 0){
+        //     perror("snprintf error\n");
+        //     exit(0);
+        // }
+        spp->pg_rd_lat = QLC_NAND_READ_LATENCY;
+        spp->pg_wr_lat = QLC_NAND_PROG_LATENCY;
+        spp->blk_er_lat = QLC_NAND_ERASE_LATENCY;
+        spp->ch_xfer_lat = 0;
+    }
+    else{
+        perror("ssd name different\n");
+        exit(0);
+    }
+    // if(write(fd, mystring, 32) < 0){
+    //     perror("write error\n");
+    //     close(fd);
+    //     exit(0);
+    // }
+    // close(fd);
+    //////////////////////////////////////////////
+    //////////////////////////////////////////////
+
+    // spp->pg_rd_lat = NAND_READ_LATENCY;
+    // spp->pg_wr_lat = NAND_PROG_LATENCY;
+    // spp->blk_er_lat = NAND_ERASE_LATENCY;
+    // spp->ch_xfer_lat = 0;
 
     /* calculated values */
     spp->secs_per_blk = spp->secs_per_pg * spp->pgs_per_blk;
@@ -370,35 +412,36 @@ void ssd_init(FemuCtrl *n)
     struct ssdparams *spp = &ssd->sp;
 
     ftl_assert(ssd);
+
+    /////////////////////////////////////////
     //ANCHOR - write to file 
-    int fd, size;
-    char mystring[512];
-    if((size = snprintf(mystring, 512, "device name: %s\n", n->devname)) < 0){
-        perror("snprintf error\n");
-        exit(0);
-    }
-    if((fd = open("femu_log.txt", O_CREAT|O_APPEND|O_RDWR, 777)) < 0){
-        perror("file open error\n");
-        close(fd);
-        exit(0);
-    }
+    // int fd, size;
+    // char mystring[512];
+    // if((size = snprintf(mystring, 512, "device name: %s\n", n->devname)) < 0){
+    //     perror("snprintf error\n");
+    //     exit(0);
+    // }
+    // if((fd = open("femu_log.txt", O_CREAT|O_APPEND|O_RDWR, 777)) < 0){
+    //     perror("file open error\n");
+    //     close(fd);
+    //     exit(0);
+    // }
+    // if(!strncmp("vSSD1", n->ssd->ssdname, 6)){
+    //     if(write(fd, "1111111\n", 10) < 0){
+    //         perror("write error\n");
+    //         close(fd);
+    //         exit(0);
+    //     }
+    // }
+    // else if(!strncmp("vSSD0", n->ssd->ssdname, 6)){
+    //     if(write(fd, "0000000\n", 10) < 0){
+    //         perror("write error\n");
+    //         close(fd);
+    //         exit(0);
+    //     }
+    // }
+    //close(fd);
     /////////////////////////////////////////
-    if(!strncmp("vSSD1", n->ssd->ssdname, 6)){
-        if(write(fd, "1111111\n", 10) < 0){
-            perror("write error\n");
-            close(fd);
-            exit(0);
-        }
-    }
-    else if(!strncmp("vSSD0", n->ssd->ssdname, 6)){
-        if(write(fd, "0000000\n", 10) < 0){
-            perror("write error\n");
-            close(fd);
-            exit(0);
-        }
-    }
-    /////////////////////////////////////////
-    close(fd);
 
     ssd_init_params(spp, n->ssd);
 
