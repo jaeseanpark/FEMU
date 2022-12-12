@@ -271,9 +271,9 @@ static void ssd_init_params(struct ssdparams *spp, struct ssd *ssd)
         //     perror("snprintf error\n");
         //     exit(0);
         // }
-        spp->pg_rd_lat = QLC_NAND_READ_LATENCY;
-        spp->pg_wr_lat = QLC_NAND_PROG_LATENCY;
-        spp->blk_er_lat = QLC_NAND_ERASE_LATENCY;
+        spp->pg_rd_lat = MLC_NAND_READ_LATENCY;
+        spp->pg_wr_lat = MLC_NAND_PROG_LATENCY;
+        spp->blk_er_lat = MLC_NAND_ERASE_LATENCY;
         spp->ch_xfer_lat = 0;
     }
     else{
