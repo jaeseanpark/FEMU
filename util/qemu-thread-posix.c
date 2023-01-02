@@ -589,8 +589,8 @@ void qemu_thread_create(QemuThread *thread, const char *name,
     pthread_sigmask(SIG_SETMASK, &set, &oldset);
 
     qemu_thread_args = g_new0(QemuThreadArgs, 1);
-    qemu_thread_args->name = g_strdup(name);
-    qemu_thread_args->start_routine = start_routine;
+    qemu_thread_args->name = g_strdup(name); //FEMU-FTL-Thread
+    qemu_thread_args->start_routine = start_routine; //ftl_thread
     qemu_thread_args->arg = arg;
 
     err = pthread_create(&thread->thread, &attr,

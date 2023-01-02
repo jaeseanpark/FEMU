@@ -1,5 +1,5 @@
 #include "ftl.h"
-
+#include "../../printlog.h"
 //#define FEMU_DEBUG_FTL
 
 static void *ftl_thread(void *arg);
@@ -87,7 +87,12 @@ static void ssd_init_lines(struct ssd *ssd)
     struct line_mgmt *lm = &ssd->lm;
     struct line *line;
 
+    //ANCHOR - line management -> tt_lines
+
     lm->tt_lines = spp->blks_per_pl;
+
+    printlog("blks_per_pl: %d\n", lm->tt_lines);
+
     ftl_assert(lm->tt_lines == spp->tt_lines);
     lm->lines = g_malloc0(sizeof(struct line) * lm->tt_lines);
 
@@ -234,7 +239,7 @@ static void check_params(struct ssdparams *spp)
     //ftl_assert(is_power_of_2(spp->nchs));
 }
 
-//ANCHOR - ssd_init_params added parameter struct ssd *ssd;
+//NOTE - added parameter struct ssd *ssd to this function;
 static void ssd_init_params(struct ssdparams *spp, struct ssd *ssd)
 {
     
@@ -256,6 +261,7 @@ static void ssd_init_params(struct ssdparams *spp, struct ssd *ssd)
     //     close(fd);
     //     exit(0);
     // }
+    //SECTION - change SSD latency of 1st SSD and 2nd SSD
     if(!strncmp("vSSD0", ssd->ssdname, 6)){
         // if((size = snprintf(mystring, 32, "from SSD0: %s\n", ssd->ssdname)) < 0){
         //     perror("snprintf error\n");
@@ -280,6 +286,7 @@ static void ssd_init_params(struct ssdparams *spp, struct ssd *ssd)
         perror("ssd name different\n");
         exit(0);
     }
+    //!SECTION
     // if(write(fd, mystring, 32) < 0){
     //     perror("write error\n");
     //     close(fd);
@@ -374,6 +381,7 @@ static void ssd_init_nand_lun(struct nand_lun *lun, struct ssdparams *spp)
     lun->busy = false;
 }
 
+//NOTE - SSD init CHANNEL
 static void ssd_init_ch(struct ssd_channel *ch, struct ssdparams *spp)
 {
     ch->nluns = spp->luns_per_ch;
@@ -412,7 +420,8 @@ void ssd_init(FemuCtrl *n)
     struct ssdparams *spp = &ssd->sp;
 
     ftl_assert(ssd);
-
+    
+    printlog("ssd name: %s\n", n->ssd->ssdname);
     /////////////////////////////////////////
     //ANCHOR - write to file 
     // int fd, size;

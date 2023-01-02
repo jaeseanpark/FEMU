@@ -73,6 +73,7 @@ static void bb_flip(FemuCtrl *n, NvmeCmd *cmd)
 static uint16_t bb_nvme_rw(FemuCtrl *n, NvmeNamespace *ns, NvmeCmd *cmd,
                            NvmeRequest *req)
 {
+    //ANCHOR - bb_nvme_rw
     return nvme_rw(n, ns, cmd, req);
 }
 
